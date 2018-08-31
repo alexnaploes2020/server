@@ -16,9 +16,14 @@
     "linebreak-style": ["warn", "unix"],
     "quotes": ["warn", "single"],
     "semi": ["warn", "always"],
-    "no-unused-vars": ["warn"],
+    "no-unused-vars": ["off"],
     "operator-linebreak": [2, "before", { "overrides": { "=": "after" } }],
     "object-curly-newline": "off",
-    "arrow-parens": "off"
+    "arrow-parens": "off",
+    "global-require": "off",
+    "func-names": "off",
+    "implicit-arrow-linebreak": "off",
+    "space-before-function-paren": "off",
+    "function-paren-newline": "off"
   }
 }
