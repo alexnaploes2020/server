@@ -22,6 +22,7 @@ mongoose
     logger.info(`Successfully connected to MongoDB (${mode} database).`);
   })
   .catch(err => logger.error(err));
+mongoose.set('useCreateIndex', true);
 
 const app = express();
 // Setup security middlewares
@@ -47,7 +48,7 @@ process.on('unhandledRejection', ex => {
 });
 
 // Setup models and route controllers
-// TODO: load and setup models
+require('./models').loadModels();
 app.use(require('./routes'));
 
 // Serve static assets if in production
