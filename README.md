@@ -1,2 +1,2 @@
 # eyy.io
-A productivity app.
+A productivity web app.
