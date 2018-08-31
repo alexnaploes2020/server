@@ -14,4 +14,20 @@ router.get('/', auth, async (req, res) => {
   return res.json({ user: user.toAuthJSON() });
 });
 
+// @route   PUT: /api/user
+// @desc    Update a user profile
+// @access  Private
+router.put('/', auth, async (req, res) => {
+  
+});
+
+// @route   DELETE: /api/user/
+// @desc    Delete a user
+// @access  Private
+router.delete('/', auth, async (req, res) => {
+  const { user } = req;
+  await user.remove();
+  return res.sendStatus(204);
+});
+
 module.exports = router;
