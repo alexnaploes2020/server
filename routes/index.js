@@ -4,8 +4,8 @@ const { mongooseValidation } = require('./middlewares/errorHandlers');
 const API_ROOT = '/api';
 // router.use(API_ROOT + '/users', userRoutes);
 
-// not found route
-router.use((req, res) => {
+// not found route middleware
+router.use((req, res, next) => {
   res.status(404).send({
     errors: {
       error: 'notFound',

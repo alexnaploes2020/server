@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const path = require('path');
 const logger = require('./logger');
@@ -24,8 +25,16 @@ mongoose
 
 const app = express();
 // Setup security middlewares
+app.enable('trust proxy');
 app.use(helmet());
 app.use(cors());
+app.use(
+  '/api/',
+  rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes windows
+    max: 500, // 500 requests cap within 5 minutes windows
+  }),
+);
 
 // Setup express config
 app.use(bodyParser.urlencoded({ extended: false }));
