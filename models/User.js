@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/config');
-const parseErrors = require('../helpers/parseErrors');
 
 const { Schema } = mongoose;
 const UserSchema = new Schema(
@@ -23,6 +22,9 @@ const UserSchema = new Schema(
     name: {
       type: String,
       required: [true, 'Name is required.'],
+    },
+    image: {
+      type: String,
     },
     bio: {
       type: String,
@@ -49,28 +51,55 @@ UserSchema.statics.validateUser = userToSave => {
       .min(3)
       .max(50)
       .required(),
+    image: Joi.string(),
     bio: Joi.string(),
     location: Joi.string(),
   };
   return Joi.validate(userToSave, schema);
 };
 
-UserSchema.statics.validateUniqueEmail = function(email, res) {
+UserSchema.statics.validateUniqueEmail = async function(email) {
   const User = this;
-  User.findOne({ email })
-    .then(user =>
-      res
-        .status(422)
-        .json(
-          parseErrors([
-            'email',
-            'Account associates with this email already exists.',
-          ]),
-        ),
-    )
-    .catch(err => {
-      throw err;
-    });
+  const user = await User.findOne({ email });
+  return !!user;
 };
 
-mongoose.model('User', UserSchema);
+UserSchema.methods.setPassword = async function(password) {
+  const userToSave = this;
+  const salt = await bcrypt.genSalt(10);
+  userToSave.password = await bcrypt.hash(password, salt);
+};
+
+UserSchema.methods.validatePassword = async function(password) {
+  const userToLogin = this;
+  const isValid = await bcrypt.compare(password, userToLogin.password);
+  return isValid;
+};
+
+UserSchema.methods.generateJWT = function() {
+  const user = this;
+  const token = jwt.sign(
+    {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+    },
+    jwtSecret,
+  );
+  return token;
+};
+
+UserSchema.methods.toAuthJSON = function() {
+  const user = this;
+  const authJson = {
+    token: user.generateJWT(),
+    email: user.email,
+    name: user.name,
+    image: user.image,
+    bio: user.bio,
+    location: user.location,
+  };
+  return authJson;
+};
+
+UserSchema.methods.generateJWT = mongoose.model('User', UserSchema);
