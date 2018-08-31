@@ -1,8 +1,9 @@
 const router = require('express').Router();
+const userRoutes = require('./api/user');
 const { mongooseValidation } = require('./middlewares/errorHandlers');
 
 const API_ROOT = '/api';
-// router.use(API_ROOT + '/users', userRoutes);
+router.use(`${API_ROOT}/users`, userRoutes);
 
 // not found route middleware
 router.use((req, res, next) => {

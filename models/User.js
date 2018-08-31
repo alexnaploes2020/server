@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
+const PasswordComplexity = require('joi-password-complexity');
 const jwt = require('jsonwebtoken');
+const gravatar = require('gravatar');
 const { jwtSecret } = require('../config/config');
 
 const { Schema } = mongoose;
@@ -23,15 +25,10 @@ const UserSchema = new Schema(
       type: String,
       required: [true, 'Name is required.'],
     },
-    image: {
-      type: String,
-    },
-    bio: {
-      type: String,
-    },
-    location: {
-      type: String,
-    },
+    // image url is managed by gravatar
+    image: { type: String, required: [true, 'User image url is required.'] },
+    bio: String,
+    location: String,
   },
   { timestamps: true },
 );
@@ -42,7 +39,7 @@ UserSchema.statics.validateUser = userToSave => {
       .min(5)
       .max(255)
       .required()
-      .email(),
+      .email({ minDomainAtoms: 2 }),
     password: Joi.string()
       .min(8)
       .max(255)
@@ -51,11 +48,21 @@ UserSchema.statics.validateUser = userToSave => {
       .min(3)
       .max(50)
       .required(),
-    image: Joi.string(),
     bio: Joi.string(),
     location: Joi.string(),
   };
   return Joi.validate(userToSave, schema);
+};
+
+UserSchema.statics.validatePasswordComplexity = password => {
+  const options = {
+    min: 8,
+    max: 255,
+    lowerCase: 1,
+    upperCase: 1,
+    numeric: 1,
+  };
+  return Joi.validate(password, new PasswordComplexity(options));
 };
 
 UserSchema.statics.validateUniqueEmail = async function(email) {
@@ -68,6 +75,15 @@ UserSchema.methods.setPassword = async function(password) {
   const userToSave = this;
   const salt = await bcrypt.genSalt(10);
   userToSave.password = await bcrypt.hash(password, salt);
+};
+
+UserSchema.methods.setImage = function(email) {
+  const userToUpdate = this;
+  userToUpdate.image = gravatar.url(email, {
+    s: '200',
+    r: 'g',
+    d: 'identicon',
+  });
 };
 
 UserSchema.methods.validatePassword = async function(password) {
