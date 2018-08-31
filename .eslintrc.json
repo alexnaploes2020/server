@@ -17,7 +17,7 @@
     "quotes": ["warn", "single"],
     "semi": ["warn", "always"],
     "no-unused-vars": ["off"],
-    "operator-linebreak": [2, "before", { "overrides": { "=": "after" } }],
+    "operator-linebreak": "off",
     "object-curly-newline": "off",
     "arrow-parens": "off",
     "global-require": "off",

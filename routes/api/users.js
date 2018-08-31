@@ -25,10 +25,10 @@ router.post('/', async (req, res) => {
       'Account associates with this email already exists.',
     ]);
   }
-  const userToRegister = new User({ ...req.body });
+  let userToRegister = new User({ ...req.body });
   userToRegister.setImage(email);
   await userToRegister.setPassword(password);
-  await userToRegister.save();
+  userToRegister = await userToRegister.save();
   return res.json({ user: userToRegister.toAuthJSON() });
 });
 
@@ -43,11 +43,11 @@ router.post('/login', async (req, res) => {
   const { password, email } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    return send422Error(res, ['loginFailed', 'Invalid email or password']);
+    return send422Error(res, ['failToLogin', 'Invalid email or password']);
   }
   const isPasswordValid = await user.validatePassword(password);
   if (!isPasswordValid) {
-    return send422Error(res, ['loginFailed', 'Invalid email or password']);
+    return send422Error(res, ['failToLogin', 'Invalid email or password']);
   }
   return res.json({ user: user.toAuthJSON() });
 });

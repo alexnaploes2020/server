@@ -42,7 +42,6 @@ UserSchema.statics.validateUserToLogin = userToLogin => {
       .email({ minDomainAtoms: 2 }),
     password: Joi.string()
       .min(8)
-      .max(255)
       .required(),
   };
   return Joi.validate(userToLogin, schema);
@@ -57,11 +56,10 @@ UserSchema.statics.validateUserToSave = userToSave => {
       .email({ minDomainAtoms: 2 }),
     password: Joi.string()
       .min(8)
-      .max(255)
       .required(),
     name: Joi.string()
       .min(3)
-      .max(50)
+      .max(70)
       .required(),
     bio: Joi.string(),
     location: Joi.string(),

@@ -14,11 +14,47 @@ router.get('/', auth, async (req, res) => {
   return res.json({ user: user.toAuthJSON() });
 });
 
+const getPreSaveUpdatedUser = (userInDb, fieldsToUpdate) => {
+  const currentRequiredFields = {
+    email: userInDb.email,
+    password: userInDb.password,
+    name: userInDb.name,
+  };
+  const preSaveUpdatedUser = {
+    ...currentRequiredFields,
+    ...fieldsToUpdate,
+  };
+  return preSaveUpdatedUser;
+};
+
 // @route   PUT: /api/user
 // @desc    Update a user profile
 // @access  Private
 router.put('/', auth, async (req, res) => {
-  
+  const { user: userInDb } = req;
+  const preSaveUpdatedUser = getPreSaveUpdatedUser(userInDb, req.body);
+  const { error: joiError } = User.validateUserToSave(preSaveUpdatedUser);
+  if (joiError) {
+    return sendJoiError(res, joiError);
+  }
+  const { email, password } = req.body;
+  if (
+    email &&
+    email !== userInDb.email &&
+    (await User.validateUniqueEmail(email))
+  ) {
+    return send422Error(res, [
+      'email',
+      'Account associates with this email already exists.',
+    ]);
+  }
+  userInDb.set(preSaveUpdatedUser);
+  if (password) {
+    await userInDb.setPassword(password);
+  }
+  userInDb.setImage(preSaveUpdatedUser.email);
+  const updatedUser = await userInDb.save();
+  return res.json({ user: updatedUser.toAuthJSON() });
 });
 
 // @route   DELETE: /api/user/
