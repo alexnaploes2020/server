@@ -1,0 +1,29 @@
+{
+  "name": "eyy.io",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A productivity web app.",
+  "author": "Eugene Yimin Yan",
+  "scripts": {},
+  "dependencies": {
+    "bcrypt": "^3.0.0",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "express-async-errors": "^3.0.0",
+    "helmet": "^3.13.0",
+    "joi": "^13.6.0",
+    "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.2.12",
+    "winston": "^3.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.4.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.11.1",
+    "nodemon": "^1.18.4",
+    "npm-run-all": "^4.1.3"
+  }
+}
