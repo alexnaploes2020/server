@@ -2,6 +2,7 @@
 # Created by https://www.gitignore.io/api/node,angular,jetbrains,visualstudio,jetbrains+all,visualstudiocode
 
 config/config-dev.js
+*.log
 
 ### Angular ###
 ## Angular ##

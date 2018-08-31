@@ -1,5 +1,5 @@
 const environment = process.env;
-const appName = 'EYYIO';
+const appName = 'EYY';
 const prodConfig = {
   mongoDbUri: environment[`${appName}_MONGODB_URI`],
   jwtSecret: environment[`${appName}_JWT_SECRET`],

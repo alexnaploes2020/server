@@ -4,7 +4,12 @@
   "private": true,
   "description": "A productivity web app.",
   "author": "Eugene Yimin Yan",
-  "scripts": {},
+  "scripts": {
+    "server": "nodemon server.js",
+    "dev": "npm-run-all -p server",
+    "start": "node server.js",
+    "prod": "npm install"
+  },
   "dependencies": {
     "bcrypt": "^3.0.0",
     "body-parser": "^1.18.3",
