@@ -33,7 +33,22 @@ const UserSchema = new Schema(
   { timestamps: true },
 );
 
-UserSchema.statics.validateUser = userToSave => {
+UserSchema.statics.validateUserToLogin = userToLogin => {
+  const schema = {
+    email: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+      .email({ minDomainAtoms: 2 }),
+    password: Joi.string()
+      .min(8)
+      .max(255)
+      .required(),
+  };
+  return Joi.validate(userToLogin, schema);
+};
+
+UserSchema.statics.validateUserToSave = userToSave => {
   const schema = {
     email: Joi.string()
       .min(5)
@@ -98,7 +113,6 @@ UserSchema.methods.generateJWT = function() {
     {
       id: user._id,
       email: user.email,
-      name: user.name,
     },
     jwtSecret,
   );
