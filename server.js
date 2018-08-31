@@ -5,9 +5,9 @@ const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const winston = require('winston');
 const logger = require('./logger');
 const { mongoDbUri } = require('./config/config');
+const errorHandlers = require('./routes/middlewares/errorHandlers');
 
 // MongoDB Config
 mongoose
@@ -32,13 +32,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Setup logger to also log unhandledRejection in async functions
-logger.exceptions.handle(
-  new winston.transports.File({ filename: 'exceptions.log' }),
-);
 process.on('unhandledRejection', ex => {
   // throw the exception for winston logger to catch
   throw ex;
 });
+
+// Setup models and route controllers
+// TODO: load and setup models
+app.use(require('./routes'));
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
@@ -49,6 +50,9 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(clientPath);
   });
 }
+
+// error handler
+app.use(errorHandlers.global);
 
 // Start the server
 const port = process.env.PORT || 52000;
