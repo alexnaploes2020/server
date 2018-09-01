@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const router = require('express').Router();
 const auth = require('../middlewares/auth');
 const sendJoiError = require('../../helpers/sendJoiError');
-const send422Error = require('../../helpers/send422Error');
+const sendError = require('../../helpers/sendError');
 const constants = require('../../constants');
 
 const TaskList = mongoose.model('TaskList');
@@ -18,7 +18,7 @@ router.post('/', auth, async (req, res) => {
   }
   const { type } = req.body;
   if (type && !taskListsTypes.includes(type)) {
-    return send422Error(res, [
+    return sendError(res, [
       'type',
       'TaskList type can only be "General" or "Project"',
     ]);
@@ -42,6 +42,25 @@ router.get('/', auth, async (req, res) => {
     .sort({ type: 1, updatedAt: -1 });
   taskLists = taskLists.map(tl => tl.toDtoJSON());
   return res.json({ taskLists });
+});
+
+// @route   GET: /api/task-lists/:slug
+// @desc    Fetch a taskList by slug
+// @access  Private
+router.get('/:slug', auth, async (req, res) => {
+  const { user } = req;
+  const { slug } = req.params;
+  const taskList = await TaskList.findOne({ slug });
+  if (!taskList) {
+    return sendError(res, 404, ['taskList', 'TaskList not found.']);
+  }
+  if (taskList.owner._id.toString() !== user._id.toString()) {
+    return sendError(res, 403, [
+      'taskList',
+      `User is not the taskList's owner`,
+    ]);
+  }
+  return res.json({ taskList });
 });
 
 module.exports = router;
