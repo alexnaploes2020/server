@@ -71,7 +71,9 @@ TaskListSchema.methods.slugify = function() {
 
 TaskListSchema.pre('validate', function(next) {
   const taskList = this;
-  taskList.slugify();
+  if (!taskList.slug || taskList.isModified('name')) {
+    taskList.slugify();
+  }
   next();
 });
 

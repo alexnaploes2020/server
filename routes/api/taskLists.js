@@ -5,8 +5,9 @@ const sendJoiError = require('../../helpers/sendJoiError');
 const sendError = require('../../helpers/sendError');
 const constants = require('../../constants');
 
+const { GENERAL, PROJECT } = constants;
 const TaskList = mongoose.model('TaskList');
-const taskListsTypes = [constants.GENERAL, constants.PROJECT];
+const taskListsTypes = [GENERAL, PROJECT];
 
 // @route   POST: /api/task-lists/
 // @desc    Create a new taskLists for a user
@@ -18,8 +19,8 @@ router.post('/', auth, async (req, res) => {
   }
   const { type } = req.body;
   if (type && !taskListsTypes.includes(type)) {
-    return sendError(res, [
-      'type',
+    return sendError(res, 422, [
+      'taskListType',
       'TaskList type can only be "General" or "Project"',
     ]);
   }
@@ -50,7 +51,7 @@ router.get('/', auth, async (req, res) => {
 router.get('/:slug', auth, async (req, res) => {
   const { user } = req;
   const { slug } = req.params;
-  const taskList = await TaskList.findOne({ slug });
+  const taskList = await TaskList.findOne({ slug }).populate('owner');
   if (!taskList) {
     return sendError(res, 404, ['taskList', 'TaskList not found.']);
   }
@@ -60,7 +61,63 @@ router.get('/:slug', auth, async (req, res) => {
       `User is not the taskList's owner`,
     ]);
   }
-  return res.json({ taskList });
+  return res.json({ taskList: taskList.toDtoJSON() });
+});
+
+const getPreSaveUpdatedTaskList = (taskListInDb, fieldsToUpdate) => {
+  const currentRequiredFields = {
+    name: taskListInDb.name,
+  };
+  const preSaveUpdatedTaskList = {
+    ...currentRequiredFields,
+    ...fieldsToUpdate,
+  };
+  return preSaveUpdatedTaskList;
+};
+
+// @route   PUT: /api/task-lists/:slug
+// @desc    Update a taskList by slug
+// @access  Private
+router.put('/:slug', auth, async (req, res) => {
+  const { user } = req;
+  const { slug } = req.params;
+  const taskList = await TaskList.findOne({ slug }).populate('owner');
+  if (!taskList) {
+    return sendError(res, 404, ['taskList', 'TaskList not found.']);
+  }
+  if (taskList.owner._id.toString() !== user._id.toString()) {
+    return sendError(res, 403, [
+      'taskList',
+      `User is not the taskList's owner`,
+    ]);
+  }
+  const { type, isComplete } = req.body;
+  if (type && !taskListsTypes.includes(type)) {
+    return sendError(res, 422, [
+      'taskListType',
+      'TaskList type can only be "General" or "Project"',
+    ]);
+  }
+  // user wants to update isComplete and only project type can update isComplete
+  if (
+    typeof isComplete !== 'undefined' &&
+    (taskList.type !== PROJECT && type !== PROJECT)
+  ) {
+    return sendError(res, 422, [
+      'taskList',
+      'Only taskList that is Project type can update isComplete field.',
+    ]);
+  }
+  const preSaveUpdatedTaskList = getPreSaveUpdatedTaskList(taskList, req.body);
+  const { error: joiError } = TaskList.validateTaskListToSave(
+    preSaveUpdatedTaskList,
+  );
+  if (joiError) {
+    return sendJoiError(res, joiError);
+  }
+  taskList.set(preSaveUpdatedTaskList);
+  const updatedTaskList = await taskList.save();
+  return res.json({ taskList: updatedTaskList.toDtoJSON() });
 });
 
 module.exports = router;
