@@ -29,6 +29,7 @@ const UserSchema = new Schema(
     image: { type: String, required: [true, 'User image url is required.'] },
     bio: String,
     location: String,
+    taskLists: [{ type: Schema.Types.ObjectId, ref: 'TaskList' }],
   },
   { timestamps: true },
 );
@@ -119,15 +120,16 @@ UserSchema.methods.generateJWT = function() {
 
 UserSchema.methods.toAuthJSON = function() {
   const user = this;
+  const { email, name, image, bio, location } = user;
   const authJson = {
     token: user.generateJWT(),
-    email: user.email,
-    name: user.name,
-    image: user.image,
-    bio: user.bio,
-    location: user.location,
+    email,
+    name,
+    image,
+    bio,
+    location,
   };
   return authJson;
 };
 
-UserSchema.methods.generateJWT = mongoose.model('User', UserSchema);
+mongoose.model('User', UserSchema);

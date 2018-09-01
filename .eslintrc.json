@@ -25,6 +25,7 @@
     "implicit-arrow-linebreak": "off",
     "space-before-function-paren": "off",
     "function-paren-newline": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "no-mixed-operators": "off"
   }
 }

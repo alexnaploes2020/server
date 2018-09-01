@@ -1,11 +1,13 @@
 const router = require('express').Router();
 const usersRoutes = require('./api/users');
 const userRoutes = require('./api/user');
+const taskListsRoutes = require('./api/taskLists');
 const { mongooseValidation } = require('./middlewares/errorHandlers');
 
 const API_ROOT = '/api';
 router.use(`${API_ROOT}/users`, usersRoutes);
 router.use(`${API_ROOT}/user`, userRoutes);
+router.use(`${API_ROOT}/task-lists`, taskListsRoutes);
 
 // not found route middleware
 router.use((req, res, next) => {
