@@ -32,4 +32,16 @@ router.post('/', auth, async (req, res) => {
   return res.json({ taskList: taskListToCreate.toDtoJSON() });
 });
 
+// @route   GET: /api/task-lists/
+// @desc    Fetch all taskLists for a user
+// @access  Private
+router.get('/', auth, async (req, res) => {
+  const { user } = req;
+  let taskLists = await TaskList.find({ owner: user })
+    .populate('owner')
+    .sort({ type: 1, updatedAt: -1 });
+  taskLists = taskLists.map(tl => tl.toDtoJSON());
+  return res.json({ taskLists });
+});
+
 module.exports = router;

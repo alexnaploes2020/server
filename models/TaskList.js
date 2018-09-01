@@ -20,7 +20,6 @@ const TaskListSchema = new Schema(
     type: {
       type: String,
       default: constants.GENERAL,
-      index: true,
     },
     isComplete: {
       type: Boolean,
@@ -30,6 +29,7 @@ const TaskListSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'TaskList owner is required.'],
+      index: true,
     },
   },
   { timestamps: true },

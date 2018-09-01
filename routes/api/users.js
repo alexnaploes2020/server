@@ -25,10 +25,10 @@ router.post('/', async (req, res) => {
       'Account associates with this email already exists.',
     ]);
   }
-  let userToRegister = new User({ ...req.body });
+  const userToRegister = new User({ ...req.body });
   userToRegister.setImage(email);
   await userToRegister.setPassword(password);
-  userToRegister = await userToRegister.save();
+  await userToRegister.save();
   return res.json({ user: userToRegister.toAuthJSON() });
 });
 
