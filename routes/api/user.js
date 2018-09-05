@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const router = require('express').Router();
 const auth = require('../middlewares/auth');
 const sendJoiError = require('../../helpers/sendJoiError');
-const send422Error = require('../../helpers/send422Error');
+const sendError = require('../../helpers/sendError');
 
 const User = mongoose.model('User');
 
@@ -43,7 +43,7 @@ router.put('/', auth, async (req, res) => {
     email !== userInDb.email &&
     (await User.validateUniqueEmail(email))
   ) {
-    return send422Error(res, [
+    return sendError(res, 422, [
       'email',
       'Account associates with this email already exists.',
     ]);

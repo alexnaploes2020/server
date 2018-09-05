@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
 const sendJoiError = require('../../helpers/sendJoiError');
-const send422Error = require('../../helpers/send422Error');
+const sendError = require('../../helpers/sendError');
 
 const User = mongoose.model('User');
 
@@ -20,15 +20,15 @@ router.post('/', async (req, res) => {
   }
   const emailExists = await User.validateUniqueEmail(email);
   if (emailExists) {
-    return send422Error(res, [
+    return sendError(res, 422, [
       'email',
       'Account associates with this email already exists.',
     ]);
   }
-  let userToRegister = new User({ ...req.body });
+  const userToRegister = new User({ ...req.body });
   userToRegister.setImage(email);
   await userToRegister.setPassword(password);
-  userToRegister = await userToRegister.save();
+  await userToRegister.save();
   return res.json({ user: userToRegister.toAuthJSON() });
 });
 
@@ -43,11 +43,11 @@ router.post('/login', async (req, res) => {
   const { password, email } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    return send422Error(res, ['failToLogin', 'Invalid email or password']);
+    return sendError(res, 422, ['failToLogin', 'Invalid email or password']);
   }
   const isPasswordValid = await user.validatePassword(password);
   if (!isPasswordValid) {
-    return send422Error(res, ['failToLogin', 'Invalid email or password']);
+    return sendError(res, 422, ['failToLogin', 'Invalid email or password']);
   }
   return res.json({ user: user.toAuthJSON() });
 });
